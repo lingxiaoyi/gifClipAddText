@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>图片标注</title>
+  </head>
+  <style>
+    body {
+      margin: 0;
+    }
+    #main {
+      width: 800px;
+      margin-top: 10px;
+    }
+    #btn {
+      width: 100px;
+      height: 30px;
+      background: red;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      font-size: 14px;
+      line-height: 14px;
+      cursor: pointer;
+    }
+    #progressWrapper {
+      display: none;
+    }
+  </style>
+  <link rel="stylesheet" href="./css/indexgif.css" type="text/css" />
+  <body>
+    <div id="main">
+      <canvas id="merge" width="800" height="600"></canvas>
+      <input id="import-gif" type="file" />
+      <div id="progressWrapper" style="/* display: none; */">
+        <span id="progressText">Please wait...</span>
+      </div>
+      <div class="option">
+        <div class="item">
+          <div class="n">第一段</div>
+          <input class="num" type="text" />
+          <div class="add">+</div>
+          <div class="reduce">-</div>
+          <input class="giftext" type="text" value="文字测试1" />
+        </div>
+        <div class="item">
+          <div class="n">第二段</div>
+          <input class="num" type="text" />
+          <div class="add">+</div>
+          <div class="reduce">-</div>
+          <input class="giftext" type="text" value="文字测试2" />
+        </div>
+        <div class="item">
+          <div class="n">第三段</div>
+          <input class="num" type="text" />
+          <div class="add">+</div>
+          <div class="reduce">-</div>
+          <input class="giftext" type="text" value="文字测试3" />
+        </div>
+      </div>
+      <div id="btn">提交信息</div>
+    </div>
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="plugins/gif.min.js"></script>
+    <script src="plugins/fabric.min1.js"></script>
+    <script src="js/gifmain.js"></script>
+  </body>
+</html>
