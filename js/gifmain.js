@@ -261,25 +261,6 @@ function buildView(gif, fname, preRender) {
               height: imgHeight //方形的高度
             });
           });
-          /* texts.forEach(function(item, i) {
-            let left = 0;
-            for (let index = 0; index < i; index++) {
-              left += framesArr[index] * imgWidth;
-            }
-            item.set({
-              left: left
-            });
-            TextPosition[i] = {
-              left,
-              top: 0,
-              textWidth: texts[i].width,
-              textHeight: texts[i].height,
-              fontSize: 14,
-              frames: framesArr[i],
-              imgWidth,
-              imgHeight
-            };
-          }); */
           TextPosition[i] = {
             ...TextPosition[i],
             textNumMax: $that
@@ -321,6 +302,8 @@ function buildView(gif, fname, preRender) {
               top: 0, //距离画布上边的距离
               fontSize: 14, //文字大小
               lockRotation: true,
+              fontSize: 20,
+              fill: 'red',
               index: i
             });
             TextPosition[i] = {
@@ -328,7 +311,6 @@ function buildView(gif, fname, preRender) {
               top: 0,
               textWidth: texts[i].width,
               textHeight: texts[i].height,
-              fontSize: 14,
               frames: framesArr[i],
               imgWidth,
               imgHeight,
