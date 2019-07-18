@@ -1,7 +1,5 @@
 #import-gif {
-  margin-bottom: 10px;
-  margin-left: 10px;
-  margin-top: 10px;
+  width: 180px;
 }
 .option {
   display: flex;
@@ -39,7 +37,29 @@
   font-size: 22px;
   line-height: 22px;
   background: rgb(182, 180, 180);
-  //color: red;
+  color: red;
   margin-right: 5px;
   cursor: pointer;
+}
+#info {
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+}
+#info .ul {
+  display: flex;
+}
+
+#info .ul .li {
+  margin-left: 20px;
+  padding: 5px 20px;
+  border: 1px solid #eee;
+}
+#info .ul .li .h3 {
+  font-size: 18px;
+  color: #333;
+  text-align: center;
+}
+#info .ul .li .p {
+  margin-top: 10px;
 }

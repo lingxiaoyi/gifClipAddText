@@ -172,7 +172,6 @@ function buildView(gif, fname, preRender) {
         <div class="reduce">-</div>
         <input class="giftext" type="text" value="文字测试${index + 1}" />
         <input class="textNumMax" type="text" value="4" />
-        <input class="textNumLimit" type="text" value="4" />
         <label>是否填充文字：</label>
         是<input type="radio" name="radio${index + 1}" value="1" checked="checked"/>
         否<input type="radio" name="radio${index + 1}" value="0"/>
@@ -183,13 +182,9 @@ function buildView(gif, fname, preRender) {
     let $add = $('.option .item .add');
     let $reduce = $('.option .item .reduce');
     let $textNumMax = $('.option .item .textNumMax');
-    let $textNumLimit = $('.option .item .textNumLimit');
     let $inputRadio = $('.option .item input:radio');
     console.log('framesArr', framesArr);
     $textNumMax.change(function(params) {
-      renderFrames();
-    });
-    $textNumLimit.change(function(params) {
       renderFrames();
     });
     $inputRadio.click(function(params) {
@@ -249,20 +244,46 @@ function buildView(gif, fname, preRender) {
         let $that = $(this);
         $(this).val(framesArr[i]);
         $(this).data('framesArrIndex', i);
-        if (rects.length) {
-          rects.forEach(function(item, i) {
-            let left = 0;
-            for (let index = 0; index < i; index++) {
-              left += framesArr[index] * imgWidth;
-            }
-            item.set({
-              left: left,
-              width: imgWidth * framesArr[i], //方形的宽度
-              height: imgHeight //方形的高度
-            });
+        let bgColor = ['rgba(0,0,0,0.3)', 'rgb(4, 250, 37, 0.3)', 'rgb(41, 4, 250, .3)', 'rgb(41, 4, 10, .3)'];
+        rects.forEach(function(item, i) {
+          item.remove();
+        });
+        texts.forEach(function(item, i) {
+          item.remove();
+        });
+        t = setTimeout(() => {
+          let left = 0;
+          for (let index = 0; index < i; index++) {
+            left += framesArr[index] * imgWidth;
+          }
+          let rect = new fabric.Rect({
+            left: left, //距离画布左侧的距离，单位是像素
+            top: 0, //距离画布上边的距离
+            fill: bgColor[i], //填充的颜色
+            width: imgWidth * framesArr[i], //方形的宽度
+            height: imgHeight, //方形的高度
+            selectable: false
+          });
+          rects.push(rect);
+          canvas_sprite.add(rect);
+          //加文字进去
+          texts[i] = new fabric.Text($inputText.eq(i).val(), {
+            left: left, //距离画布左侧的距离，单位是像素
+            top: 0, //距离画布上边的距离
+            fontSize: 14, //文字大小
+            lockRotation: true,
+            fontSize: 16,
+            fill: 'red',
+            index: i
           });
           TextPosition[i] = {
-            ...TextPosition[i],
+            left,
+            top: 0,
+            textWidth: texts[i].width,
+            textHeight: texts[i].height,
+            frames: framesArr[i],
+            imgWidth,
+            imgHeight,
             textNumMax: $that
               .parent()
               .find('.textNumMax')
@@ -278,62 +299,12 @@ function buildView(gif, fname, preRender) {
                 .val() / 1
             )
           };
-          canvas_sprite.renderAll();
-        } else {
-          let bgColor = ['rgba(0,0,0,0.3)', 'rgb(4, 250, 37, 0.3)', 'rgb(41, 4, 250, .3)', 'rgb(41, 4, 10, .3)'];
-          t = setTimeout(() => {
-            let left = 0;
-            for (let index = 0; index < i; index++) {
-              left += framesArr[index] * imgWidth;
-            }
-            let rect = new fabric.Rect({
-              left: left, //距离画布左侧的距离，单位是像素
-              top: 0, //距离画布上边的距离
-              fill: bgColor[i], //填充的颜色
-              width: imgWidth * framesArr[i], //方形的宽度
-              height: imgHeight, //方形的高度
-              selectable: false
-            });
-            rects.push(rect);
-            canvas_sprite.add(rect);
-            //加文字进去
-            texts[i] = new fabric.Text($inputText.eq(i).val(), {
-              left: left, //距离画布左侧的距离，单位是像素
-              top: 0, //距离画布上边的距离
-              fontSize: 14, //文字大小
-              lockRotation: true,
-              fontSize: 20,
-              fill: 'red',
-              index: i
-            });
-            TextPosition[i] = {
-              left,
-              top: 0,
-              textWidth: texts[i].width,
-              textHeight: texts[i].height,
-              frames: framesArr[i],
-              imgWidth,
-              imgHeight,
-              textNumMax: $that
-                .parent()
-                .find('.textNumMax')
-                .val(),
-              textNumMin: $that
-                .parent()
-                .find('.textNumLimit')
-                .val(),
-              isAddText: !!(
-                $that
-                  .parent()
-                  .find(`input[name=radio${i + 1}]:checked`)
-                  .val() / 1
-              )
-            };
-            //texts.push(Text);
-            canvas_sprite.add(texts[i]);
-            //clearTimeout(t);
-          }, 10);
-        }
+          //texts.push(Text);
+          canvas_sprite.add(texts[i]);
+
+          renderInfoHtml(TextPosition);
+          //clearTimeout(t);
+        }, 10);
       });
     }
   });
@@ -375,6 +346,7 @@ function buildView(gif, fname, preRender) {
       return text === e.target.text;
     });
     TextPosition[index] = {
+      ...TextPosition[index],
       left,
       top,
       textWidth: width,
@@ -384,9 +356,75 @@ function buildView(gif, fname, preRender) {
       imgWidth,
       imgHeight
     };
+    renderInfoHtml(TextPosition);
+  });
+  canvas_sprite.on('mouse:up', function(e) {
+    //console.log('moving a rectangle', e);
+    let $inputText = $('.option .item .giftext');
+    let arrText = [];
+    $inputText.each(function(i) {
+      arrText.push($(this).val());
+    });
+    var obj = e.target;
+    // if object is too big ignore
+    if (obj.currentHeight > obj.canvas.height || obj.currentWidth > obj.canvas.width) {
+      return;
+    }
+    obj.setCoords();
+    // top-left  corner
+    if (obj.getBoundingRect().top < 0 || obj.getBoundingRect().left < 0) {
+      obj.top = Math.max(obj.top, obj.top - obj.getBoundingRect().top);
+      obj.left = Math.max(obj.left, obj.left - obj.getBoundingRect().left);
+    }
+    // bot-right corner
+    if (
+      obj.getBoundingRect().top + obj.getBoundingRect().height > obj.canvas.height ||
+      obj.getBoundingRect().left + obj.getBoundingRect().width > obj.canvas.width
+    ) {
+      obj.top = Math.min(
+        obj.top,
+        obj.canvas.height - obj.getBoundingRect().height + obj.top - obj.getBoundingRect().top
+      );
+      obj.left = Math.min(
+        obj.left,
+        obj.canvas.width - obj.getBoundingRect().width + obj.left - obj.getBoundingRect().left
+      );
+    }
+    let { top, left, width, height, fontSize } = e.target;
+    let index = arrText.findIndex(function(text) {
+      return text === e.target.text;
+    });
+    TextPosition[index] = {
+      ...TextPosition[index],
+      left,
+      top,
+      textWidth: width,
+      textHeight: height,
+      fontSize,
+      frames: framesArr[index],
+      imgWidth,
+      imgHeight
+    };
+    renderInfoHtml(TextPosition);
   });
 }
-
-document.getElementById('btn').onclick = function() {
+function renderInfoHtml(TextPosition) {
+  $('#info .ul').html('');
+  TextPosition.forEach(function(itemText, itemTextIdex) {
+    let { left, top, frames, textNumMax, isAddText, imgWidth } = itemText;
+    console.log('itemText', JSON.stringify(itemText));
+    for (let index = 0; index < itemTextIdex; index++) {
+      left -= TextPosition[index].frames * imgWidth;
+    }
+    $('#info .ul').append(`<div class="li">
+        <div class="h3">第${itemTextIdex + 1}段</div>
+        <div class="p">帧数:${frames}</div>
+        <div class="p">坐标:${left},${top}</div>
+        <div class="p">最大字数限制:${textNumMax}</div>
+        <div class="p">是否填充文字:${isAddText}</div>
+      </div>`);
+  });
+}
+/* document.getElementById('btn').onclick = function() {
   console.log('TextPosition', TextPosition);
-};
+}; */
