@@ -1,10 +1,20 @@
+.box {
+  padding-top: 20px;
+  text-align: center;
+}
 #import-gif {
   width: 180px;
+  height: 30px;
+}
+#select {
+  width: 60px;
+  height: 30px;
 }
 .option {
   display: flex;
-  justify-content: start;
+  justify-content: center;
   align-items: center;
+  margin-top: 20px;
 }
 .option input {
   width: 20px;
@@ -15,6 +25,8 @@
   justify-content: space-between;
   align-items: center;
   margin-left: 10px;
+  border: 1px solid rgb(223, 223, 223);
+  padding: 10px 10px;
 }
 .option .item .n {
   font-size: 14px;
@@ -52,7 +64,7 @@
 
 #info .ul .li {
   margin-left: 20px;
-  padding: 5px 20px;
+  padding: 20px 40px;
   border: 1px solid #eee;
 }
 #info .ul .li .h3 {

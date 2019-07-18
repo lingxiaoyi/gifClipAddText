@@ -418,10 +418,10 @@ function renderInfoHtml(TextPosition) {
     }
     $('#info .ul').append(`<div class="li">
         <div class="h3">第${itemTextIdex + 1}段</div>
-        <div class="p">帧数:${frames}</div>
-        <div class="p">坐标:${left},${top}</div>
-        <div class="p">最大字数限制:${textNumMax}</div>
-        <div class="p">是否填充文字:${isAddText}</div>
+        <div class="p">帧数: ${frames}</div>
+        <div class="p">坐标: ${left},${top}</div>
+        <div class="p">最大字数限制: ${textNumMax}</div>
+        <div class="p">是否填充文字: ${isAddText}</div>
       </div>`);
   });
 }
