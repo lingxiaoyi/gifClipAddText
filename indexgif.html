@@ -34,17 +34,16 @@
     <div id="main">
       <canvas id="merge" width="800" height="600"></canvas>
       <input id="import-gif" type="file" />
+      <select name="" id="select">
+        <option value="2">2段</option>
+        <option value="3" selected="selected">3段</option>
+        <option value="4">4段</option>
+      </select>
       <div id="progressWrapper" style="/* display: none; */">
         <span id="progressText">Please wait...</span>
       </div>
       <div class="option">
-        <div class="item">
-          <div class="n">第一段</div>
-          <input class="num" type="text" />
-          <div class="add">+</div>
-          <div class="reduce">-</div>
-          <input class="giftext" type="text" value="文字测试1" />
-        </div>
+        <!-- 
         <div class="item">
           <div class="n">第二段</div>
           <input class="num" type="text" />
@@ -58,10 +57,11 @@
           <div class="add">+</div>
           <div class="reduce">-</div>
           <input class="giftext" type="text" value="文字测试3" />
-        </div>
+        </div> -->
       </div>
       <div id="btn">提交信息</div>
     </div>
+    <div id="view"></div>
     <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
     <script src="plugins/gif.min.js"></script>
     <script src="plugins/fabric.min1.js"></script>
