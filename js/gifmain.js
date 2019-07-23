@@ -10,7 +10,7 @@ let TextPosition = ['', '', '']; //所有文字元素的信息
 document.getElementById('import-gif').addEventListener('change', function(e) {
   var file = e.target.files[0];
 
-  if (/gif$/.test(file.type)) {
+  //if (/gif$/.test(file.type)) {
     progress('Loadging...');
     loadBuffer(
       file,
@@ -41,9 +41,9 @@ document.getElementById('import-gif').addEventListener('change', function(e) {
         progress('Loading...' + (((100 * e.loaded) / e.total) | 0) + '%');
       }
     );
-  } else {
+  /* } else {
     alert('"' + file.name + '" not GIF');
-  }
+  } */
 });
 
 function progress(msg) {
@@ -109,9 +109,10 @@ function buildView(gif, fname, preRender) {
       let img = new fabric.Image.fromURL(canvas_frame.toDataURL(), function(img) {
         TotalWidth = img.getWidth() * gif_frames;
         ScalingRatio = 1 /* canvas_sprite_width / TotalWidth */; //缩放比 画布大小/图片真实大小
+        img.set({ selectable: false, fill: '#000000', width: 300, height: 300 });
+
         imgWidth = img.getWidth();
         imgHeight = img.getHeight();
-        img.set({ selectable: false, fill: '#000000' });
         img.left = img.getWidth() * i;
         width = img.getWidth() * i + 1;
         canvas_sprite.setHeight(img.getHeight());
@@ -141,6 +142,7 @@ function buildView(gif, fname, preRender) {
   let framesArr = [];
   let rects = [];
   let texts = [];
+  let fontsize = [];
   $select.unbind('change');
   $select.change(function() {
     let clipPartNum = $(this).val();
@@ -159,12 +161,15 @@ function buildView(gif, fname, preRender) {
     });
     rects = [];
     texts = [];
+    fontsize = [];
     for (let index = 0; index < clipPartNum; index++) {
       if (index === 1) {
         framesArr.push(average + residue);
       } else {
         framesArr.push(average);
       }
+      
+      fontsize.push(45)
       $('.option').append(`<div class="item">
         <div class="n">第${index + 1}段</div>
         <input class="num" type="text" />
@@ -175,6 +180,7 @@ function buildView(gif, fname, preRender) {
         <label>是否填充文字：</label>
         是<input type="radio" name="radio${index + 1}" value="1" checked="checked"/>
         否<input type="radio" name="radio${index + 1}" value="0"/>
+        字号:<input class="fontsize" type="text" value="45" />
       </div>`);
     }
     let $inputNum = $('.option .item .num');
@@ -183,16 +189,19 @@ function buildView(gif, fname, preRender) {
     let $reduce = $('.option .item .reduce');
     let $textNumMax = $('.option .item .textNumMax');
     let $inputRadio = $('.option .item input:radio');
-    console.log('framesArr', framesArr);
+    let $fontsize = $('.option .item .fontsize');
+    //console.log('framesArr', framesArr);
     $textNumMax.change(function(params) {
       renderFrames();
     });
+    $fontsize.change(function(params) {
+      fontsize = [];
+      $fontsize.each(function() {
+        fontsize.push($(this).val());
+      });
+      renderFrames();
+    });
     $inputRadio.click(function(params) {
-      /* $(this)
-        .parent()
-        .find('input:radio')
-        .attr('checked', false);
-      $(this).attr('checked', 'checked'); */
       renderFrames();
     });
     $add.unbind('click');
@@ -267,12 +276,15 @@ function buildView(gif, fname, preRender) {
           rects.push(rect);
           canvas_sprite.add(rect);
           //加文字进去
+          let fontSize = 16;
+          if (fontsize[i]) {
+            fontSize = fontsize[i];
+          }
           texts[i] = new fabric.Text($inputText.eq(i).val(), {
             left: left, //距离画布左侧的距离，单位是像素
             top: 0, //距离画布上边的距离
-            fontSize: 14, //文字大小
+            fontSize, //文字大小
             lockRotation: true,
-            fontSize: 16,
             fill: 'red',
             index: i
           });
@@ -284,6 +296,7 @@ function buildView(gif, fname, preRender) {
             frames: framesArr[i],
             imgWidth,
             imgHeight,
+            fontSize,
             textNumMax: $that
               .parent()
               .find('.textNumMax')
@@ -351,7 +364,7 @@ function buildView(gif, fname, preRender) {
       top,
       textWidth: width,
       textHeight: height,
-      fontSize,
+      fontSize: fontsize[index],
       frames: framesArr[index],
       imgWidth,
       imgHeight
@@ -390,7 +403,7 @@ function buildView(gif, fname, preRender) {
         obj.canvas.width - obj.getBoundingRect().width + obj.left - obj.getBoundingRect().left
       );
     }
-    let { top, left, width, height, fontSize } = e.target;
+    let { top, left, width, height, fontSize, scaleX, scaleY } = e.target;
     let index = arrText.findIndex(function(text) {
       return text === e.target.text;
     });
@@ -398,9 +411,9 @@ function buildView(gif, fname, preRender) {
       ...TextPosition[index],
       left,
       top,
-      textWidth: width,
-      textHeight: height,
-      fontSize,
+      textWidth: width * scaleX,
+      textHeight: height * scaleY,
+      fontSize: fontsize[index],
       frames: framesArr[index],
       imgWidth,
       imgHeight
@@ -411,17 +424,18 @@ function buildView(gif, fname, preRender) {
 function renderInfoHtml(TextPosition) {
   $('#info .ul').html('');
   TextPosition.forEach(function(itemText, itemTextIdex) {
-    let { left, top, frames, textNumMax, isAddText, imgWidth } = itemText;
-    console.log('itemText', JSON.stringify(itemText));
+    let { left, top, frames, textNumMax, isAddText, imgWidth, textWidth, textHeight, fontSize } = itemText;
     for (let index = 0; index < itemTextIdex; index++) {
       left -= TextPosition[index].frames * imgWidth;
     }
     $('#info .ul').append(`<div class="li">
         <div class="h3">第${itemTextIdex + 1}段</div>
         <div class="p">帧数: ${frames}</div>
-        <div class="p">坐标: ${left},${top}</div>
+        <div class="p">起始坐标: ${left},${top}</div>
+        <div class="p">结束坐标: ${left + textWidth},${top + textHeight}</div>
         <div class="p">最大字数限制: ${textNumMax}</div>
         <div class="p">是否填充文字: ${isAddText}</div>
+        <div class="p">字号: ${fontSize}</div>
       </div>`);
   });
 }
